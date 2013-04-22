@@ -1,0 +1,65 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+  <title>Rank 饭团记录</title>
+  <style type="text/css">
+<!--
+table {border:0;}
+th {height:30px;line-height:20px;font-size:14px;color:#fff;background:#3f9fcf;font-weight:bold;padding:0 8px;}
+th a {color:#ffc}
+td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
+.tro {background-color:#ffffff;height:24px;}
+.tre {background-color:#d0e0ff;height:24px;}
+.jointd {background-color:#60ff60;}
+.paytd {background-color:#ff7070;}
+-->
+  </style>
+</head>
+<body>
+<table><tbody>
+  <tr>
+    {% for t in stat_sum %}
+    <td>{{ t }}</td>
+    {% endfor %}
+  </tr>
+  <tr class="tre">
+    {% for t in stat_times %}
+    <td>{{ t }}</td>
+    {% endfor %}
+  </tr>
+  <tr>
+    {% for t in stat_avg %}
+    <td>{{ t }}</td>
+    {% endfor %}
+  </tr>
+  <tr>
+    {% for t in table_head.list %}
+    <th>{{ t }}</th>
+    {% endfor %}
+    {% for p in table_head.people %}
+    <th><a href="{% url 'ft:people' p.id %}">{{ p.name }}</a></th>
+    {% endfor %}
+  </tr>
+  {% for l in table_lines reversed %}
+  <tr {% if l.type %}class="{{ l.type }}"{% endif %}>
+    <td>{{ l.date }}</td>
+    <td><a href="{% url 'ft:restaurant' l.restaurant_id %}">{{ l.restaurant }}</a></td>
+    <td>{{ l.charge }}</td>
+    <td>{{ l.people_count }}</td>
+    <td>{{ l.per_charge }}</td>
+    <td><a href="{% url 'ft:pay_people' l.pay_people_id %}">{{ l.pay_people }}</a></td>
+    {% for p in l.peoples %}
+    <td {% if p.type %}class="{{ p.type }}"{% endif %}>{{ p.cost }}<br />{{ p.balance }}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+  <tr>
+    {% for t in table_head.list %}
+    <th>{{ t }}</th>
+    {% endfor %}
+    {% for p in table_head.people %}
+    <th><a href="{% url 'ft:people' p.id %}">{{ p.name }}</a></th>
+    {% endfor %}
+  </tr>
+</tbody></table>
+</body>
+</html>
