@@ -55,7 +55,10 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
       else:
         lp['cost'] = 0
       if p.id == d.pay_people.id:
-        lp['cost'] = '%+.2f' % (d.charge - d.per_charge())
+        if p in d.peoples.all():
+          lp['cost'] = '%+.2f' % (d.charge - d.per_charge())
+        else:
+          lp['cost'] = '%+.2f' % d.charge
         lp['type'] = 'paytd'
       lp['balance'] = '=%.2f' % balance[p]
       line['peoples'].append(lp)
