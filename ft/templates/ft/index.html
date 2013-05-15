@@ -47,6 +47,7 @@ td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
     <td>{{ l.people_count }}</td>
     <td>{{ l.per_charge }}</td>
     <td><a href="{% url 'ft:pay_people' l.pay_people_id %}">{{ l.pay_people }}</a></td>
+    <td>{{ l.fantuan_balance }}</td>
     {% for p in l.peoples %}
     <td {% if p.type %}class="{{ p.type }}"{% endif %}>{{ p.cost }}<br />{{ p.balance }}</td>
     {% endfor %}

@@ -9,7 +9,7 @@ from django.template import Context
 from ft.models import Restaurant, People, Deal
 
 def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=0):
-  table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人']}
+  table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人', '团费']}
   table_head['people'] = []
   peoples = People.objects.all()
   balance = {}
@@ -41,6 +41,7 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
     line['pay_people_id'] = d.pay_people.id
     line['pay_people'] = d.pay_people.name.encode('utf8')
     line['peoples'] = []
+    fantuan_balance = 0
 
     people_join = False
     balance[d.pay_people] += d.charge
@@ -62,6 +63,7 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
         lp['type'] = 'paytd'
       lp['balance'] = '=%.2f' % balance[p]
       line['peoples'].append(lp)
+      fantuan_balance += balance[p]
 
     if filter_people and (not people_join):
       continue
@@ -78,6 +80,7 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
       sum_times += 1
       sum_cost += d.charge
       sum_count += d.peoples.count()
+    line['fantuan_balance'] = '%.2f' % fantuan_balance
     trx += 1
     if trx % 2:
       line['type'] = 'tro'
@@ -95,9 +98,9 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
     sum_per_avg = 0
 
   # statistics
-  stat_sum = ['', '', sum_cost, sum_count, '', '总额']
-  stat_times = ['', '', sum_times, '', '', '次数']
-  stat_avg = ['', '', sum_avg, sum_per_count, sum_per_avg, '平均']
+  stat_sum = ['', '', sum_cost, sum_count, '', '总额', '']
+  stat_times = ['', '', sum_times, '', '', '次数', '']
+  stat_avg = ['', '', sum_avg, sum_per_count, sum_per_avg, '平均', '']
   for p in peoples:
     avg = 0
     if times[p]:
