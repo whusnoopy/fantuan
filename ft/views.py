@@ -8,7 +8,10 @@ from django.template import Context
 
 from ft.models import Restaurant, People, Deal
 
-def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=0):
+def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=0, active_only=True, show_all=False):
+
+  start_date = timezone.now() - timezone.timedelta(days = 14)
+
   table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人', '团费']}
   table_head['people'] = []
   peoples = People.objects.all()
@@ -19,10 +22,11 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
     balance[p] = 0 
     cost[p] = 0
     times[p] = 0
-    table_head['people'].append({
-        'id': p.id,
-        'name': p.name.encode('utf8'),
-    })
+    if not active_only or p.active:
+      table_head['people'].append({
+          'id': p.id,
+          'name': p.name.encode('utf8'),
+      })
 
   table_lines = []
   sum_times = 0
@@ -62,7 +66,8 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
           lp['cost'] = '%+.2f' % d.charge
         lp['type'] = 'paytd'
       lp['balance'] = '=%.2f' % balance[p]
-      line['peoples'].append(lp)
+      if not active_only or p.active:
+        line['peoples'].append(lp)
       fantuan_balance += balance[p]
 
     if filter_people and (not people_join):
@@ -71,12 +76,15 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
       continue
     if filter_pay_people and (filter_pay_people != d.pay_people.id):
       continue
+    if not show_all and d.deal_date < start_date:
+      continue
 
-    for p in peoples:
-      if p in d.peoples.all():
-        times[p] += 1
-        cost[p] += d.per_charge()
-    if d.peoples.count():
+    # 充值\提现\转账不记录在消费记录里
+    if d.peoples.count() > 1:
+      for p in peoples:
+        if p in d.peoples.all():
+          times[p] += 1
+          cost[p] += d.per_charge()
       sum_times += 1
       sum_cost += d.charge
       sum_count += d.peoples.count()
@@ -102,12 +110,13 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
   stat_times = ['', '', sum_times, '', '', '次数', '']
   stat_avg = ['', '', sum_avg, sum_per_count, sum_per_avg, '平均', '']
   for p in peoples:
-    avg = 0
-    if times[p]:
-      avg = cost[p] * 1.0 / times[p]
-    stat_sum.append('%.2f' % cost[p])
-    stat_times.append('%d' % times[p])
-    stat_avg.append('%.2f' % avg)
+    if not active_only or p.active:
+      avg = 0
+      if times[p]:
+        avg = cost[p] * 1.0 / times[p]
+      stat_sum.append('%.2f' % cost[p])
+      stat_times.append('%d' % times[p])
+      stat_avg.append('%.2f' % avg)
 
   context = Context({
       'table_head': table_head,
@@ -137,4 +146,9 @@ def restaurant(request, restaurant_id):
 def pay_people(request, pay_people_id):
   deals = Deal.objects.order_by('deal_date', 'restaurant')
   context = buildContext(deals, filter_pay_people=int(pay_people_id))
+  return render(request, 'ft/index.html', context)
+
+def show_all(request):
+  deals = Deal.objects.order_by('deal_date', 'restaurant')
+  context = buildContext(deals, active_only=False, show_all=True)
   return render(request, 'ft/index.html', context)

@@ -17,6 +17,7 @@ class Restaurant(models.Model):
 
 class People(models.Model):
   name = models.CharField(max_length=200, verbose_name="姓名", unique=True)
+  active = models.NullBooleanField(default=1, verbose_name="活跃用户")
 
   class Meta:
     verbose_name = '人'
