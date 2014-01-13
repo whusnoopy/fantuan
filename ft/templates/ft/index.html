@@ -16,6 +16,7 @@ td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
 </head>
 <body>
 <a href="{% url 'ft:index' %}">只看最近</a>, 
+<a href="{% url 'ft:end_date' end_date %}">查看上月</a>, 
 <a href="{% url 'ft:show_all' %}">查看全部记录</a><br />
 <table><tbody>
   <tr>

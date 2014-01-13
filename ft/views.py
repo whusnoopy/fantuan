@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
+from datetime import datetime
+
 from django.http import HttpResponse
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
@@ -8,9 +10,13 @@ from django.template import Context
 
 from ft.models import Restaurant, People, Deal
 
-def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=0, active_only=True, show_all=False):
+def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=0, active_only=True, show_all=False, end_date=None):
+  if end_date:
+    end_date = datetime.strptime(str(end_date), "%Y%m").replace(tzinfo=timezone.utc)
+  else:
+    end_date = timezone.now()
 
-  start_date = timezone.now() - timezone.timedelta(days = 14)
+  start_date = end_date - timezone.timedelta(days=31)
 
   table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人', '团费']}
   table_head['people'] = []
@@ -76,7 +82,7 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
       continue
     if filter_pay_people and (filter_pay_people != d.pay_people.id):
       continue
-    if not show_all and d.deal_date < start_date:
+    if not show_all and (d.deal_date < start_date or d.deal_date > end_date):
       continue
 
     # 充值\提现\转账不记录在消费记录里
@@ -118,7 +124,9 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
       stat_times.append('%d' % times[p])
       stat_avg.append('%.2f' % avg)
 
+  next_date = end_date - timezone.timedelta(days=1)
   context = Context({
+      'end_date': datetime.strftime(next_date, '%Y%m'),
       'table_head': table_head,
       'table_lines': table_lines,
       'stat_sum': stat_sum,
@@ -151,4 +159,9 @@ def pay_people(request, pay_people_id):
 def show_all(request):
   deals = Deal.objects.order_by('deal_date', 'restaurant')
   context = buildContext(deals, active_only=False, show_all=True)
+  return render(request, 'ft/index.html', context)
+
+def end_date(request, end_date):
+  deals = Deal.objects.order_by('deal_date', 'restaurant')
+  context = buildContext(deals, end_date=int(end_date))
   return render(request, 'ft/index.html', context)
