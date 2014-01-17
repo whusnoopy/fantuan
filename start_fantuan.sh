@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJDIR="/home/yewen/fantuan"
+PROJDIR="$(readlink -f $(dirname $0))"
 PIDFILE="$PROJDIR/django.pid"
 SOCKET="$PROJDIR/fastcgi.sock"
 
