@@ -20,18 +20,19 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
 
   table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人', '团费']}
   table_head['people'] = []
-  peoples = People.objects.all()
+  peoples = dict([(p.id, p.active) for p in People.objects.all()])
+  pnames = dict([(p.id, p.name) for p in People.objects.all()])
   balance = {}
   cost = {}
   times = {}
-  for p in peoples:
-    balance[p] = 0 
-    cost[p] = 0
-    times[p] = 0
-    if not active_only or p.active:
+  for pid, pactive in peoples.items():
+    balance[pid] = 0
+    cost[pid] = 0
+    times[pid] = 0
+    if not active_only or pactive:
       table_head['people'].append({
-          'id': p.id,
-          'name': p.name.encode('utf8'),
+          'id': pid,
+          'name': pnames[pid].encode('utf8'),
       })
 
   table_lines = []
@@ -41,59 +42,68 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
 
   trx = 0
   for d in deals:
+    deal_peoples_id = dict([(p.id, 1) for p in d.peoples.all()])
+    charge = d.charge
+    deal_per_charge = d.per_charge()
+    pay_id = d.pay_people.id
+    pay_people = d.pay_people.name
+
     line = {}
     line['date'] = d.deal_date.strftime("%Y-%m-%d")
     line['restaurant_id'] = d.restaurant.id
     line['restaurant'] = d.restaurant.name.encode('utf8')
-    line['charge'] = d.charge
-    line['people_count'] = d.peoples.count()
-    line['per_charge'] = '%.2f' % d.per_charge()
-    line['pay_people_id'] = d.pay_people.id
-    line['pay_people'] = d.pay_people.name.encode('utf8')
+    line['charge'] = charge
+    line['people_count'] = len(deal_peoples_id)
+    line['per_charge'] = '%.2f' % deal_per_charge
+    line['pay_people_id'] = pay_id
+    line['pay_people'] = pay_people.encode('utf8')
     line['peoples'] = []
     fantuan_balance = 0
 
     people_join = False
-    balance[d.pay_people] += d.charge
-    for p in peoples:
-      if p.id == filter_people and (p in d.peoples.all() or p == d.pay_people):
+    balance[pay_id] += charge
+    pidx = 0
+    for pid, pactive in peoples.items():
+      pidx += 1
+      if pid == filter_people and (pid in deal_peoples_id or pid == pay_id):
         people_join = True
       lp = {}
-      if p in d.peoples.all():
-        balance[p] -= d.per_charge()
-        lp['cost'] = '%+.2f' % -d.per_charge()
+      if pid in deal_peoples_id:
+        balance[pid] -= deal_per_charge
+        lp['cost'] = '%+.2f' % -deal_per_charge
         lp['type'] = 'jointd'
       else:
         lp['cost'] = 0
-      if p.id == d.pay_people.id:
-        if p in d.peoples.all():
-          lp['cost'] = '%+.2f' % (d.charge - d.per_charge())
+      if pid == pay_id:
+        if pid in deal_peoples_id:
+          lp['cost'] = '%+.2f' % (charge - deal_per_charge)
         else:
-          lp['cost'] = '%+.2f' % d.charge
+          lp['cost'] = '%+.2f' % charge
         lp['type'] = 'paytd'
-      lp['balance'] = '=%.2f' % balance[p]
-      if not active_only or p.active:
+      lp['balance'] = '=%.2f' % balance[pid]
+      if not active_only or pactive:
         line['peoples'].append(lp)
-      fantuan_balance += balance[p]
+      fantuan_balance += balance[pid]
 
     if filter_people and (not people_join):
       continue
     if filter_restaurant and (filter_restaurant != d.restaurant.id):
       continue
-    if filter_pay_people and (filter_pay_people != d.pay_people.id):
+    if filter_pay_people and (filter_pay_people != pay_id):
       continue
     if not show_all and (d.deal_date < start_date or d.deal_date > end_date):
       continue
 
     # 充值\提现\转账不记录在消费记录里
     if d.peoples.count() > 1:
-      for p in peoples:
-        if p in d.peoples.all():
-          times[p] += 1
-          cost[p] += d.per_charge()
+      for pid in peoples.keys():
+        if pid in deal_peoples_id:
+          times[pid] += 1
+          cost[pid] += deal_per_charge
       sum_times += 1
-      sum_cost += d.charge
-      sum_count += d.peoples.count()
+      sum_cost += charge
+      sum_count += len(deal_peoples_id)
+
     line['fantuan_balance'] = '%.2f' % fantuan_balance
     trx += 1
     if trx % 2:
@@ -115,13 +125,13 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
   stat_sum = ['', '', sum_cost, sum_count, '', '总额', '']
   stat_times = ['', '', sum_times, '', '', '次数', '']
   stat_avg = ['', '', sum_avg, sum_per_count, sum_per_avg, '平均', '']
-  for p in peoples:
-    if not active_only or p.active:
+  for pid, pactive in peoples.items():
+    if not active_only or pactive:
       avg = 0
-      if times[p]:
-        avg = cost[p] * 1.0 / times[p]
-      stat_sum.append('%.2f' % cost[p])
-      stat_times.append('%d' % times[p])
+      if times[pid]:
+        avg = cost[pid] * 1.0 / times[pid]
+      stat_sum.append('%.2f' % cost[pid])
+      stat_times.append('%d' % times[pid])
       stat_avg.append('%.2f' % avg)
 
   next_date = end_date - timezone.timedelta(days=1)
