@@ -1,24 +1,39 @@
-<html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>饭团记录</title>
-  <style type="text/css">
-<!--
-table {border:0;}
-th {height:30px;line-height:20px;font-size:14px;color:#fff;background:#3f9fcf;font-weight:bold;padding:0 8px;}
-th a {color:#ffc}
-td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
-.tro {background-color:#ffffff;height:24px;}
-.tre {background-color:#d0e0ff;height:24px;}
-.jointd {background-color:#60ff60;}
-.paytd {background-color:#ff7070;}
--->
-  </style>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  {% load staticfiles %}
+  <link rel="stylesheet" type="text/css" href="{% static 'ft/style.css' %}" />
 </head>
 <body>
-<a href="{% url 'ft:index' %}">只看最近</a>, 
-<a href="{% url 'ft:end_date' end_date %}">查看上月</a>, 
-<a href="{% url 'ft:show_all' %}">查看全部记录</a><br />
-<table><tbody>
+  <div class="container">
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{% url 'ft:index' %}">饭团</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'ft:index' %}">最近记录</a></li>
+        <li><a href="{% url 'ft:end_date' end_date %}">上月记录</a></li>
+        <li><a href="{% url 'ft:show_all' %}">全部记录</a></li>
+      </ul>
+    </div>
+  </nav>
+<table class="table table-striped table-bordered table-hover table-condensed">
+<tbody>
+  <thead>
+  <tr>
+    {% for t in table_head.list %}
+    <th>{{ t }}</th>
+    {% endfor %}
+    {% for p in table_head.people %}
+    <th><a href="{% url 'ft:people' p.id %}">{{ p.name }}</a></th>
+    {% endfor %}
+  </tr>
+  </thead>
+  <tbody>
   <tr>
     {% for t in stat_sum %}
     <td>{{ t }}</td>
@@ -34,6 +49,10 @@ td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
     <td>{{ t }}</td>
     {% endfor %}
   </tr>
+  </tbody>
+</table>
+<table class="table table-striped table-bordered table-hover table-condensed">
+  <thead>
   <tr>
     {% for t in table_head.list %}
     <th>{{ t }}</th>
@@ -42,17 +61,19 @@ td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
     <th><a href="{% url 'ft:people' p.id %}">{{ p.name }}</a></th>
     {% endfor %}
   </tr>
-  {% for l in table_lines reversed %}
-  <tr {% if l.type %}class="{{ l.type }}"{% endif %}>
-    <td>{{ l.date }}</td>
-    <td><a href="{% url 'ft:restaurant' l.restaurant_id %}">{{ l.restaurant }}</a></td>
-    <td>{{ l.charge }}</td>
-    <td>{{ l.people_count }}</td>
-    <td>{{ l.per_charge }}</td>
-    <td><a href="{% url 'ft:pay_people' l.pay_people_id %}">{{ l.pay_people }}</a></td>
-    <td>{{ l.fantuan_balance }}</td>
-    {% for p in l.peoples %}
-    <td {% if p.type %}class="{{ p.type }}"{% endif %}>{{ p.cost }}<br />{{ p.balance }}</td>
+  </thead>
+  <tbody>
+  {% for this_line in table_lines reversed %}
+  <tr>
+    <td>{{ this_line.date }}</td>
+    <td><a href="{% url 'ft:restaurant' this_line.restaurant_id %}">{{ this_line.restaurant }}</a></td>
+    <td>{{ this_line.charge }}</td>
+    <td>{{ this_line.people_count }}</td>
+    <td>{{ this_line.per_charge }}</td>
+    <td><a href="{% url 'ft:pay_people' this_line.pay_people_id %}">{{ this_line.pay_people }}</a></td>
+    <td>{{ this_line.fantuan_balance }}</td>
+    {% for p in this_line.peoples %}
+    <td class="balance {% if p.type %}{{ p.type }}{% endif %}">{{ p.cost }}<br />{{ p.balance }}</td>
     {% endfor %}
   </tr>
   {% endfor %}
@@ -64,6 +85,15 @@ td {font-size:14px;line-height:18px;padding:0 8px;text-align:right;}
     <th><a href="{% url 'ft:people' p.id %}">{{ p.name }}</a></th>
     {% endfor %}
   </tr>
-</tbody></table>
+</tbody>
+</table>
+  </div>
+  <div id="footer">
+    <div class="container">
+      <p>fantuan on <a href="https://github.com/whusnoopy/fantuan" targer="_blank">github</a></p>
+    </div>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>

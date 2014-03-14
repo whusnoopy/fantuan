@@ -119,7 +119,6 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
   sum_cost = 0
   sum_count = 0
 
-  trx = 0
   deals = fetchDeals(pnames, rnames)
   for d in deals:
     line = dict(d)
@@ -134,7 +133,7 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
       if pid in d['join_peoples']:
         balance[pid] -= d['per_charge']
         line_people_detail['cost'] = '%+.2f' % -d['per_charge']
-        line_people_detail['type'] = 'jointd'
+        line_people_detail['type'] = 'success'
       else:
         line_people_detail['cost'] = 0
 
@@ -143,7 +142,7 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
           line_people_detail['cost'] = '%+.2f' % (d['charge'] - d['per_charge'])
         else:
           line_people_detail['cost'] = '%+.2f' % d['charge']
-        line_people_detail['type'] = 'paytd'
+        line_people_detail['type'] = 'danger'
 
       line_people_detail['balance'] = '=%.2f' % balance[pid]
 
@@ -175,15 +174,10 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
       sum_cost += d['charge']
       sum_count += len(d['join_peoples'])
 
-    line['date'] = d['date'].strftime("%Y %m-%d")
+    line['date'] = d['date'].strftime("%Y-%m-%d")
     line['charge'] = '%+.2f' % d['charge']
     line['per_charge'] = '%+.2f' % d['per_charge']
     line['fantuan_balance'] = '%.2f' % fantuan_balance
-    trx += 1
-    if trx % 2:
-      line['type'] = 'tro'
-    else:
-      line['type'] = 'tre'
     table_lines.append(line)
 
   if sum_count:

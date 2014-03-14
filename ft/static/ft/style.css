@@ -1,0 +1,12 @@
+body {
+  padding-top: 20px;
+}
+td.balance {
+  text-align:right;
+}
+
+#footer {
+  border-top: #ccc solid 1px;
+  padding: 10px;
+  background-color: #f5f5f5;
+}
