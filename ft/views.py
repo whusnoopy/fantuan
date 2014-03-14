@@ -7,10 +7,88 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 from django.template import Context
+from django.db import connection
 
 from ft.models import Restaurant, People, Deal
 
-def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=0, active_only=True, show_all=False, end_date=None):
+
+def fetchPeople():
+  pnames = {}
+  peoples = {}
+
+  cursor = connection.cursor()
+  cursor.execute("SELECT id, name, active FROM ft_people")
+
+  for row in cursor.fetchall():
+    pid = row[0]
+    pnames[pid] = row[1].encode('utf8')
+    peoples[pid] = row[2]
+
+  return pnames, peoples
+
+
+def fetchRestaurant():
+  rnames = {}
+
+  cursor = connection.cursor()
+  cursor.execute("SELECT id, name FROM ft_restaurant")
+
+  for row in cursor.fetchall():
+    rnames[row[0]] = row[1].encode('utf8')
+
+  return rnames
+
+
+def fetchDeal2People():
+  dp = {}
+
+  cursor = connection.cursor()
+  cursor.execute("SELECT deal_id, people_id FROM ft_deal_peoples")
+
+  for row in cursor.fetchall():
+    did = row[0]
+    pid = row[1]
+    if did not in dp:
+      dp[did] = {}
+    dp[did][pid] = 1
+
+  return dp
+
+
+
+def fetchDeals(pnames, rnames):
+  dp = fetchDeal2People()
+  deals = []
+
+  cursor = connection.cursor()
+  cursor.execute("SELECT id, restaurant_id, pay_people_id, deal_date, charge FROM ft_deal")
+
+  for row in cursor.fetchall():
+    nd = {
+      'date': row[3],
+      'restaurant_id': row[1],
+      'restaurant': rnames[row[1]],
+      'charge': row[4],
+      'pay_people_id': row[2],
+      'pay_people': pnames[row[2]],
+    }
+    if row[0] not in dp:
+      nd['join_peoples'] = {}
+      nd['people_count'] = 0
+      nd['per_charge'] = 0
+    else:
+      nd['join_peoples'] = dp[row[0]]
+      nd['people_count'] = len(nd['join_peoples'])
+      nd['per_charge'] = nd['charge'] / nd['people_count']
+
+    deals.append(dict(nd))
+
+  deals.sort(key=lambda d:(d['date'], d['restaurant_id']))
+
+  return deals
+
+
+def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, active_only=True, show_all=False, end_date=None):
   if end_date:
     end_date = datetime.strptime(str(end_date), "%Y%m").replace(tzinfo=timezone.utc)
   else:
@@ -18,10 +96,11 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
 
   start_date = end_date - timezone.timedelta(days=31)
 
+  pnames, peoples = fetchPeople()
+  rnames = fetchRestaurant()
+
   table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人', '团费']}
   table_head['people'] = []
-  peoples = dict([(p.id, p.active) for p in People.objects.all()])
-  pnames = dict([(p.id, p.name) for p in People.objects.all()])
   balance = {}
   cost = {}
   times = {}
@@ -32,7 +111,7 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
     if not active_only or pactive:
       table_head['people'].append({
           'id': pid,
-          'name': pnames[pid].encode('utf8'),
+          'name': pnames[pid],
       })
 
   table_lines = []
@@ -41,69 +120,64 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
   sum_count = 0
 
   trx = 0
+  deals = fetchDeals(pnames, rnames)
   for d in deals:
-    deal_peoples_id = dict([(p.id, 1) for p in d.peoples.all()])
-    charge = d.charge
-    deal_per_charge = d.per_charge()
-    pay_id = d.pay_people.id
-    pay_people = d.pay_people.name
-
-    line = {}
-    line['date'] = d.deal_date.strftime("%Y-%m-%d")
-    line['restaurant_id'] = d.restaurant.id
-    line['restaurant'] = d.restaurant.name.encode('utf8')
-    line['charge'] = charge
-    line['people_count'] = len(deal_peoples_id)
-    line['per_charge'] = '%.2f' % deal_per_charge
-    line['pay_people_id'] = pay_id
-    line['pay_people'] = pay_people.encode('utf8')
+    line = dict(d)
     line['peoples'] = []
-    fantuan_balance = 0
 
+    fantuan_balance = 0
     people_join = False
-    balance[pay_id] += charge
-    pidx = 0
+    balance[d['pay_people_id']] += d['charge']
     for pid, pactive in peoples.items():
-      pidx += 1
-      if pid == filter_people and (pid in deal_peoples_id or pid == pay_id):
-        people_join = True
-      lp = {}
-      if pid in deal_peoples_id:
-        balance[pid] -= deal_per_charge
-        lp['cost'] = '%+.2f' % -deal_per_charge
-        lp['type'] = 'jointd'
+      line_people_detail = {}
+
+      if pid in d['join_peoples']:
+        balance[pid] -= d['per_charge']
+        line_people_detail['cost'] = '%+.2f' % -d['per_charge']
+        line_people_detail['type'] = 'jointd'
       else:
-        lp['cost'] = 0
-      if pid == pay_id:
-        if pid in deal_peoples_id:
-          lp['cost'] = '%+.2f' % (charge - deal_per_charge)
+        line_people_detail['cost'] = 0
+
+      if pid == d['pay_people_id']:
+        if pid in d['join_peoples']:
+          line_people_detail['cost'] = '%+.2f' % (d['charge'] - d['per_charge'])
         else:
-          lp['cost'] = '%+.2f' % charge
-        lp['type'] = 'paytd'
-      lp['balance'] = '=%.2f' % balance[pid]
+          line_people_detail['cost'] = '%+.2f' % d['charge']
+        line_people_detail['type'] = 'paytd'
+
+      line_people_detail['balance'] = '=%.2f' % balance[pid]
+
       if not active_only or pactive:
-        line['peoples'].append(lp)
+        line['peoples'].append(line_people_detail)
+
+      if pid == filter_people and (pid in d['join_peoples'] or pid == d['pay_people_id']):
+        people_join = True
+
       fantuan_balance += balance[pid]
+    # end for pid
 
     if filter_people and (not people_join):
       continue
-    if filter_restaurant and (filter_restaurant != d.restaurant.id):
+    if filter_restaurant and (filter_restaurant != d['restaurant_id']):
       continue
-    if filter_pay_people and (filter_pay_people != pay_id):
+    if filter_pay_people and (filter_pay_people != d['pay_people_id']):
       continue
-    if not show_all and (d.deal_date < start_date or d.deal_date > end_date):
+    if not show_all and (d['date'] < start_date or d['date'] > end_date):
       continue
 
     # 充值\提现\转账不记录在消费记录里
-    if d.peoples.count() > 1:
+    if d['people_count'] > 1:
       for pid in peoples.keys():
-        if pid in deal_peoples_id:
+        if pid in d['join_peoples']:
           times[pid] += 1
-          cost[pid] += deal_per_charge
+          cost[pid] += d['per_charge']
       sum_times += 1
-      sum_cost += charge
-      sum_count += len(deal_peoples_id)
+      sum_cost += d['charge']
+      sum_count += len(d['join_peoples'])
 
+    line['date'] = d['date'].strftime("%Y %m-%d")
+    line['charge'] = '%+.2f' % d['charge']
+    line['per_charge'] = '%+.2f' % d['per_charge']
     line['fantuan_balance'] = '%.2f' % fantuan_balance
     trx += 1
     if trx % 2:
@@ -147,31 +221,25 @@ def buildContext(deals, filter_people=0, filter_restaurant=0, filter_pay_people=
   return context
 
 def index(request):
-  deals = Deal.objects.order_by('deal_date', 'restaurant')
-  context = buildContext(deals)
+  context = buildContext()
   return render(request, 'ft/index.html', context)
 
 def people(request, people_id):
-  deals = Deal.objects.order_by('deal_date', 'restaurant')
-  context = buildContext(deals, filter_people=int(people_id))
+  context = buildContext(filter_people=int(people_id))
   return render(request, 'ft/index.html', context)
 
 def restaurant(request, restaurant_id):
-  deals = Deal.objects.order_by('deal_date', 'restaurant')
-  context = buildContext(deals, filter_restaurant=int(restaurant_id))
+  context = buildContext(filter_restaurant=int(restaurant_id))
   return render(request, 'ft/index.html', context)
 
 def pay_people(request, pay_people_id):
-  deals = Deal.objects.order_by('deal_date', 'restaurant')
-  context = buildContext(deals, filter_pay_people=int(pay_people_id))
+  context = buildContext(filter_pay_people=int(pay_people_id))
   return render(request, 'ft/index.html', context)
 
 def show_all(request):
-  deals = Deal.objects.order_by('deal_date', 'restaurant')
-  context = buildContext(deals, active_only=False, show_all=True)
+  context = buildContext(active_only=False, show_all=True)
   return render(request, 'ft/index.html', context)
 
 def end_date(request, end_date):
-  deals = Deal.objects.order_by('deal_date', 'restaurant')
-  context = buildContext(deals, end_date=int(end_date))
+  context = buildContext(end_date=int(end_date))
   return render(request, 'ft/index.html', context)
