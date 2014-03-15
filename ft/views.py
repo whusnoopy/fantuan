@@ -88,13 +88,23 @@ def fetchDeals(pnames, rnames):
   return deals
 
 
-def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, active_only=True, show_all=False, end_date=None):
+def buildContext(filter_people=0,
+        filter_restaurant=0,
+        filter_pay_people=0,
+        active_only=True,
+        show_all=False,
+        start_date=None,
+        end_date=None):
+
+  if start_date:
+    start_date = datetime.strptime(str(start_date), "%Y%m").replace(tzinfo=timezone.utc)
+  else:
+    start_date = timezone.now() - timezone.timedelta(days=31)
+    
   if end_date:
     end_date = datetime.strptime(str(end_date), "%Y%m").replace(tzinfo=timezone.utc)
   else:
-    end_date = timezone.now()
-
-  start_date = end_date - timezone.timedelta(days=31)
+    end_date = start_date + timezone.timedelta(days=31)
 
   pnames, peoples = fetchPeople()
   rnames = fetchRestaurant()
@@ -114,6 +124,7 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
           'name': pnames[pid],
       })
 
+  all_month = {}
   table_lines = []
   sum_times = 0
   sum_cost = 0
@@ -121,6 +132,10 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
 
   deals = fetchDeals(pnames, rnames)
   for d in deals:
+    m = d['date'].strftime("%Y%m")
+    if m not in all_month:
+      all_month[m] = 1
+
     line = dict(d)
     line['peoples'] = []
 
@@ -174,7 +189,7 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
       sum_cost += d['charge']
       sum_count += len(d['join_peoples'])
 
-    line['date'] = d['date'].strftime("%Y-%m-%d")
+    line['date'] = d['date'].strftime("%Y-%m-%d %a")
     line['charge'] = '%+.2f' % d['charge']
     line['per_charge'] = '%+.2f' % d['per_charge']
     line['fantuan_balance'] = '%.2f' % fantuan_balance
@@ -205,6 +220,7 @@ def buildContext(filter_people=0, filter_restaurant=0, filter_pay_people=0, acti
   next_date = end_date - timezone.timedelta(days=1)
   context = Context({
       'end_date': datetime.strftime(next_date, '%Y%m'),
+      'date_list': sorted(list(all_month.keys()), reverse=True),
       'table_head': table_head,
       'table_lines': table_lines,
       'stat_sum': stat_sum,
@@ -232,6 +248,10 @@ def pay_people(request, pay_people_id):
 
 def show_all(request):
   context = buildContext(active_only=False, show_all=True)
+  return render(request, 'ft/index.html', context)
+
+def start_date(request, start_date):
+  context = buildContext(start_date=int(start_date))
   return render(request, 'ft/index.html', context)
 
 def end_date(request, end_date):
