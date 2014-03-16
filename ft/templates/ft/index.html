@@ -94,6 +94,11 @@
   </tr>
 </tbody>
 </table>
+<ol class="breadcrumb">
+  {% for d in date_list %}
+  <li><a href="{% url 'ft:start_date' d%}">{{ d|slice:"2:4" }}.{{ d|slice:"4:" }}</a></li>
+  {% endfor %}
+</ol>
   </div>
   <div id="footer">
     <div class="container">
