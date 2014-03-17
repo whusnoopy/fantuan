@@ -1,8 +1,11 @@
 body {
-  padding-top: 20px;
+  padding-top: 70px;
 }
 td.balance {
   text-align:right;
+}
+.sep {
+  padding: 0 16px;
 }
 
 #footer {
