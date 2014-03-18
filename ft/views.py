@@ -191,9 +191,9 @@ def buildContext(filter_people=0,
         sum_per_avg = 0
 
     # statistics
-    stat_sum = ['', '', sum_cost, sum_count, '', '总额', '']
-    stat_times = ['', '', sum_times, '', '', '次数', '']
-    stat_avg = ['', '', sum_avg, sum_per_count, sum_per_avg, '平均', '']
+    stat_sum = [sum_cost, sum_count, '', '总额']
+    stat_times = [sum_times, '', '', '次数']
+    stat_avg = [sum_avg, sum_per_count, sum_per_avg, '平均']
     for pid, pactive in peoples.items():
         if show_all or pactive:
             avg = 0
