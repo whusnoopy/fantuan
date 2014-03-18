@@ -21,7 +21,7 @@
       <span class="glyphicon glyphicon-calendar"></span>
       <select class="selectpicker" data-width="auto" id="date" name="date">
         {% for d in date_list %}
-        <option value="{{d}}">{{d}}</option>
+        <option value="{{d}}" id="date_{{d}}">{{d}}</option>
         {% endfor %}
         <option value="">所有</option>
       </select>
@@ -29,38 +29,36 @@
       <div class="navbar-group">
       <span class="glyphicon glyphicon-user"></span>
       <select class="selectpicker" data-width="auto" id="people" name="p">
-        <option value="0">所有人</option>
+        <option value="0">所有</option>
         {% for p in all_people %}
-        <option value="{{p.id}}">{{p.name}}</option>
+        <option value="{{p.id}}" id="p_{{p.id}}">{{p.name}}</option>
         {% endfor %}
       </select>
       </div>
       <div class="navbar-group">
       <span class="glyphicon glyphicon-cutlery"></span>
       <select class="selectpicker" data-width="auto" id="restaurant" name="r">
-        <option value="0">任意饭店</option>
+        <option value="0">任意</option>
         {% for r in all_restaurant %}
-        <option value="{{r.id}}">{{r.name}}</option>
+        <option value="{{r.id}}" id="r_{{r.id}}">{{r.name}}</option>
         {% endfor %}
       </select>
       </div>
       <div class="navbar-group">
       <span class="glyphicon glyphicon-credit-card"></span>
       <select class="selectpicker" data-width="auto" id="pay" name="pay">
-        <option value="0">任意人</option>
+        <option value="0">任意</option>
         {% for p in all_people %}
-        <option value="{{p.id}}">{{p.name}}</option>
+        <option value="{{p.id}}" id="pay_{{p.id}}">{{p.name}}</option>
         {% endfor %}
       </select>
       </div>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" name="all" value="1">
-          <a class="btn btn-default">
-            <span class="glyphicon glyphicon-eye-close"></span>
-            包括隐藏
-          </a>
-        </label>
+      <div class="navbar-group">
+      <span class="glyphicon glyphicon-eye-close"></span>
+      <select class="selectpicker" data-width="auto" id="show_all" name="all">
+        <option value="0">只看活跃</option>
+        <option value="1">显示所有</option>
+      </select>
       </div>
       <button type="submit" class="btn btn-info">
         <span class="glyphicon glyphicon-search"></span> 查询
@@ -144,20 +142,43 @@
 
 </div>
 
-  <div id="footer">
-    <div class="container">
-      <p>
-        &copy; 2012- whusnoopy,
-        fantuan on <a href="https://github.com/whusnoopy/fantuan" targer="_blank">github</a>
-      </p>
-    </div>
+<div id="footer">
+  <div class="container">
+    <p>
+      &copy; 2012- whusnoopy,
+      fantuan on <a href="https://github.com/whusnoopy/fantuan" targer="_blank">github</a>
+    </p>
   </div>
-  <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.11.0.min.js"></script>
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-  <script src="{% static 'ft/bootstrap-select.min.js' %}"></script>
-  <script type="text/javascript">
-    $('.selectpicker').selectpicker();
-    // TODO: mark select from parameters
-  </script>
+</div>
+
+<script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.11.0.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="{% static 'ft/bootstrap-select.min.js' %}"></script>
+<script type="text/javascript">
+  $('.selectpicker').selectpicker();
+
+  function getSearchParameters() {
+    var prmstr = window.location.search.substr(1);
+    return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+  }
+
+  function transformToAssocArray( prmstr ) {
+    var params = {};
+    var prmarr = prmstr.split("&");
+    for ( var i = 0; i < prmarr.length; i++) {
+      var tmparr = prmarr[i].split("=");
+      params[tmparr[0]] = tmparr[1];
+    }
+    return params;
+  }
+
+  var params = getSearchParameters();
+
+  for (p in params) {
+    $('select[name=' + p + ']').val(params[p]);
+    $('select[name=' + p + ']').change();
+  }
+
+</script>
 </body>
 </html>
