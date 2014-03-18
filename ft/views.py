@@ -92,6 +92,7 @@ def buildContext(filter_people=0,
                 filter_pay_people=0,
                 show_all=False,
                 fantuan_date=''):
+    weekday_name = {0:'周一',1:'周二',2:'周三',3:'周四',4:'周五',5:'周六',6:'周日',}
     pnames, peoples = fetchPeople()
     rnames = fetchRestaurant()
 
@@ -175,7 +176,9 @@ def buildContext(filter_people=0,
             sum_cost += d['charge']
             sum_count += len(d['join_peoples'])
 
-        line['date'] = d['date'].strftime("%Y-%m-%d %a")
+
+        line['date'] = d['date'].strftime("%Y-%m-%d")
+        line['date'] += " %s" % weekday_name[d['date'].weekday()]
         line['charge'] = '%.2f' % d['charge']
         line['per_charge'] = '%+.2f' % d['per_charge']
         line['fantuan_balance'] = '%.2f' % fantuan_balance
