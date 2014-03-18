@@ -95,7 +95,7 @@ def buildContext(filter_people=0,
     pnames, peoples = fetchPeople()
     rnames = fetchRestaurant()
 
-    table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款人', '团费']}
+    table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款', '团费']}
     table_head['people'] = []
     balance = {}
     cost = {}
@@ -176,7 +176,7 @@ def buildContext(filter_people=0,
             sum_count += len(d['join_peoples'])
 
         line['date'] = d['date'].strftime("%Y-%m-%d %a")
-        line['charge'] = '%+.2f' % d['charge']
+        line['charge'] = '%.2f' % d['charge']
         line['per_charge'] = '%+.2f' % d['per_charge']
         line['fantuan_balance'] = '%.2f' % fantuan_balance
         table_lines.append(line)
