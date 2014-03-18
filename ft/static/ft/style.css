@@ -1,9 +1,8 @@
+html,
 body {
-    padding-top: 70px;
+    height: 100%
 }
-td.balance {
-    text-align:right;
-}
+
 .navbar-group {
     padding-left: 8px;
     padding-right: 4px;
@@ -14,9 +13,20 @@ td.balance {
     margin-right: 4px;
 }
 
+#wrap {
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto -60px;
+    padding: 70px 0 60px;
+}
+
+td.balance {
+    text-align:right;
+}
+
 #footer {
+    height: 60px;
     border-top: #ccc solid 1px;
-    padding: 10px;
     background-color: #f5f5f5;
     color: #777;
 }
