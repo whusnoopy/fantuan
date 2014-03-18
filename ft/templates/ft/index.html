@@ -18,7 +18,7 @@
   <div class="collapse navbar-collapse">
     <form class="navbar-form navbar-left form-inline" role="form" action="{% url 'ft:index' %}" method="GET">
       <div class="navbar-group">
-      <span class="glyphicon glyphicon-calendar"></span>
+      <span class="glyphicon glyphicon-calendar icon"></span>
       <select class="selectpicker" data-width="auto" id="date" name="date">
         {% for d in date_list %}
         <option value="{{d}}" id="date_{{d}}">{{d}}</option>
@@ -27,7 +27,7 @@
       </select>
       </div>
       <div class="navbar-group">
-      <span class="glyphicon glyphicon-user"></span>
+      <span class="glyphicon glyphicon-user icon"></span>
       <select class="selectpicker" data-width="auto" id="people" name="p">
         <option value="0">所有</option>
         {% for p in all_people %}
@@ -36,7 +36,7 @@
       </select>
       </div>
       <div class="navbar-group">
-      <span class="glyphicon glyphicon-cutlery"></span>
+      <span class="glyphicon glyphicon-cutlery icon"></span>
       <select class="selectpicker" data-width="auto" id="restaurant" name="r">
         <option value="0">任意</option>
         {% for r in all_restaurant %}
@@ -45,7 +45,7 @@
       </select>
       </div>
       <div class="navbar-group">
-      <span class="glyphicon glyphicon-credit-card"></span>
+      <span class="glyphicon glyphicon-credit-card icon"></span>
       <select class="selectpicker" data-width="auto" id="pay" name="pay">
         <option value="0">任意</option>
         {% for p in all_people %}
@@ -54,7 +54,7 @@
       </select>
       </div>
       <div class="navbar-group">
-      <span class="glyphicon glyphicon-eye-close"></span>
+      <span class="glyphicon glyphicon-eye-close icon"></span>
       <select class="selectpicker" data-width="auto" id="show_all" name="all">
         <option value="0">只看活跃</option>
         <option value="1">显示所有</option>
