@@ -10,5 +10,5 @@ if [ -f $PIDFILE ]; then
     rm -f -- $PIDFILE
 fi
 
-python ./manage.py runfcgi method=prefork socket=$SOCKET pidfile=$PIDFILE maxchildren=3 maxspare=3
+${PROJDIR}/ve/bin/python ./manage.py runfcgi method=prefork socket=$SOCKET pidfile=$PIDFILE maxchildren=3 maxspare=3
 chmod 777 $SOCKET
