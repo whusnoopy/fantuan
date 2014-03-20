@@ -180,7 +180,7 @@ def buildContext(filter_people=0,
         line['date'] = d['date'].strftime("%Y-%m-%d")
         line['date'] += " %s" % weekday_name[d['date'].weekday()]
         line['charge'] = '%.2f' % d['charge']
-        line['per_charge'] = '%+.2f' % d['per_charge']
+        line['per_charge'] = '%.2f' % d['per_charge']
         line['fantuan_balance'] = '%.2f' % fantuan_balance
         table_lines.append(line)
 
