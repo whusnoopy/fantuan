@@ -65,7 +65,9 @@
       </button>
     </form>
     <ul class="nav navbar-nav navbar-right">
-      <li><a href="{% url 'admin:index' %}">管理</a></li>
+      <li><a href="{% url 'ft:index' %}">本月记录</a></li>
+      <li><a href="{% url 'ft:index' %}?date=&all=1">所有记录</a></li>
+      <li><a href="{% url 'admin:index' %}">管理饭团</a></li>
     </ul>
   </div>
 </div>
