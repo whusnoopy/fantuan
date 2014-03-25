@@ -132,6 +132,8 @@
       {% endfor %}
     </tr>
     {% endfor %}
+  </tbody>
+  <tfoot>
     <tr class="warning">
       {% for t in table_head.list %}
       <th>{{ t }}</th>
@@ -140,7 +142,7 @@
       <th><a href="{% url 'ft:index' %}?p={{p.id}}">{{ p.name }}</a></th>
       {% endfor %}
     </tr>
-  </tbody>
+  </tfoot>
 </table>
 
 </div>
