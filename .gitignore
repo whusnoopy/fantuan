@@ -2,4 +2,7 @@
 *.pot
 *.pyc
 *.db
+static
+.idea
 local_settings.py
+push_to_online.sh
