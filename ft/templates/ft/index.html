@@ -3,9 +3,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>饭团记录</title>
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
   {% load staticfiles %}
-  <link rel="stylesheet" type="text/css" href="{% static 'ft/bootstrap-select.min.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'ft/style.css' %}" />
 </head>
 <body>
@@ -17,49 +16,49 @@
 
   <div class="collapse navbar-collapse">
     <form class="navbar-form navbar-left form-inline" role="form" action="{% url 'ft:index' %}" method="GET">
-      <div class="navbar-group">
-      <span class="glyphicon glyphicon-calendar icon"></span>
-      <select class="selectpicker" data-width="auto" id="date" name="date">
+      <label for="date">
+        <span class="glyphicon glyphicon-calendar icon"></span>
+      </label>
+      <select class="form-control" id="date" name="date">
         {% for d in date_list %}
         <option value="{{d}}" id="date_{{d}}">{{d}}</option>
         {% endfor %}
         <option value="">所有</option>
       </select>
-      </div>
-      <div class="navbar-group">
-      <span class="glyphicon glyphicon-user icon"></span>
-      <select class="selectpicker" data-width="auto" id="people" name="p">
+      <label for="people">
+        <span class="glyphicon glyphicon-user icon"></span>
+      </label>
+      <select class="form-control" id="people" name="p">
         <option value="0">所有</option>
         {% for p in all_people %}
         <option value="{{p.id}}" id="p_{{p.id}}">{{p.name}}</option>
         {% endfor %}
       </select>
-      </div>
-      <div class="navbar-group">
-      <span class="glyphicon glyphicon-cutlery icon"></span>
-      <select class="selectpicker" data-width="auto" id="restaurant" name="r">
+      <label for="restaurant">
+        <span class="glyphicon glyphicon-cutlery icon"></span>
+      </label>
+      <select class="form-control" id="restaurant" name="r">
         <option value="0">任意</option>
         {% for r in all_restaurant %}
         <option value="{{r.id}}" id="r_{{r.id}}">{{r.name}}</option>
         {% endfor %}
       </select>
-      </div>
-      <div class="navbar-group">
-      <span class="glyphicon glyphicon-credit-card icon"></span>
-      <select class="selectpicker" data-width="auto" id="pay" name="pay">
+      <label for="pay">
+        <span class="glyphicon glyphicon-credit-card icon"></span>
+      </label>
+      <select class="form-control" id="pay" name="pay">
         <option value="0">任意</option>
         {% for p in all_people %}
         <option value="{{p.id}}" id="pay_{{p.id}}">{{p.name}}</option>
         {% endfor %}
       </select>
-      </div>
-      <div class="navbar-group">
-      <span class="glyphicon glyphicon-eye-close icon"></span>
-      <select class="selectpicker" data-width="auto" id="show_all" name="all">
+      <label for="show_all">
+        <span class="glyphicon glyphicon-eye-close icon"></span>
+      </label>
+      <select class="form-control" id="show_all" name="all">
         <option value="0">只看活跃</option>
         <option value="1">显示所有</option>
       </select>
-      </div>
       <button type="submit" class="btn btn-info">
         <span class="glyphicon glyphicon-search"></span> 查询
       </button>
@@ -152,17 +151,14 @@
   <div class="container">
     <p>
       &copy; 2012- whusnoopy,
-      fantuan on <a href="https://github.com/whusnoopy/fantuan" targer="_blank">github</a>
+      fantuan on <a href="https://github.com/whusnoopy/fantuan" target="_blank">github</a>
     </p>
   </div>
 </div>
 
-<script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.11.0.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-<script src="{% static 'ft/bootstrap-select.min.js' %}"></script>
+<script src="http://cdn.staticfile.org/jquery/1.11.0/jquery.min.js"></script>
+<script src="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-  $('.selectpicker').selectpicker();
-
   function getSearchParameters() {
     var prmstr = window.location.search.substr(1);
     return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
@@ -180,9 +176,10 @@
 
   var params = getSearchParameters();
 
-  for (p in params) {
-    $('select[name=' + p + ']').val(params[p]);
-    $('select[name=' + p + ']').change();
+  for (var p in params) {
+    var select_element = $('select[name=' + p + ']');
+    select_element.val(params.p);
+    select_element.change();
   }
 
 </script>

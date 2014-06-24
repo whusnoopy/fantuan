@@ -3,13 +3,8 @@ body {
     height: 100%
 }
 
-.navbar-group {
-    padding-left: 8px;
-    padding-right: 4px;
-    float: left;
-}
-.navbar-group span.icon {
-    top: 3px;
+.navbar-form label {
+    margin-left: 8px;
     margin-right: 4px;
 }
 
