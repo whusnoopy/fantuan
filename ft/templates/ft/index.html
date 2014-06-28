@@ -159,29 +159,28 @@
 <script src="http://cdn.staticfile.org/jquery/1.11.0/jquery.min.js"></script>
 <script src="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-  function getSearchParameters() {
-    var prmstr = window.location.search.substr(1);
-    return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
-  }
-
-  function transformToAssocArray( prmstr ) {
-    var params = {};
-    var prmarr = prmstr.split("&");
-    for ( var i = 0; i < prmarr.length; i++) {
-      var tmparr = prmarr[i].split("=");
-      params[tmparr[0]] = tmparr[1];
+  $(function(){
+    function getSearchParameters() {
+      var prmstr = window.location.search.substr(1);
+      return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
     }
-    return params;
-  }
 
-  var params = getSearchParameters();
+    function transformToAssocArray( prmstr ) {
+      var params = {};
+      var prmarr = prmstr.split("&");
+      for ( var i = 0; i < prmarr.length; i++) {
+        var tmparr = prmarr[i].split("=");
+        params[tmparr[0]] = tmparr[1];
+      }
+      return params;
+    }
 
-  for (var p in params) {
-    var select_element = $('select[name=' + p + ']');
-    select_element.val(params.p);
-    select_element.change();
-  }
+    var params = getSearchParameters();
 
+    for (var para in params) {
+      $('#'+para).val(params[para]);
+    }
+  });
 </script>
 </body>
 </html>
