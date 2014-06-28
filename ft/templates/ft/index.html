@@ -178,7 +178,7 @@
     var params = getSearchParameters();
 
     for (var para in params) {
-      $('#'+para).val(params[para]);
+      $('select[name='+para+']').val(params[para]);
     }
   });
 </script>
