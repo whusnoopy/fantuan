@@ -2,7 +2,11 @@
 
 A simple fantuan financial tools based on django
 
+Fantuan is a free software, you can use, modify or distribute it without restriction, visit http://whusnoopy.github.io/fantuan/LICENSE.html for more detail
+
 一个简单的基于 django 的饭团记账系统
+
+饭团是一个自由软件, 您可以免费使用, 修改和再分发, 详见 http://whusnoopy.github.io/fantuan/LICENSE.html
 
 
 # 环境依赖
