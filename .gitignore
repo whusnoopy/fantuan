@@ -1,8 +1,15 @@
-*.log
+# Python related
 *.pot
 *.pyc
+
+# deploy need
+*.log
 *.db
 static
-.idea
 local_settings.py
 push_to_online.sh
+
+# develop env
+.idea
+ve
+django.pid
