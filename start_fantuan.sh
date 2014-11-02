@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJDIR="$(readlink -f $(dirname $0))"
+PROJDIR=$( cd $(dirname $0) ; pwd -P )
 PIDFILE="$PROJDIR/django.pid"
 SOCKET="$PROJDIR/fastcgi.sock"
 
