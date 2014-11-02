@@ -91,6 +91,12 @@ server {
 $ sh start_fantuan.sh
 ```
 
+## 停止服务
+
+``` bash
+$ sh start_fantuan.sh stop
+```
+
 
 # 使用指南
 
