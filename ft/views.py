@@ -96,7 +96,15 @@ def buildContext(filter_people=0,
     pnames, peoples = fetchPeople()
     rnames = fetchRestaurant()
 
-    table_head = {'list': ['时间', '地点', '总额', '人数', '人均', '付款', '团费']}
+    table_head = {'list': {
+        'date': '时间',
+        'restaurant': '地点',
+        'charge': '总额',
+        'people_count': '人数',
+        'per_charge': '人均',
+        'pay_people': '付款',
+        'fantuan_balance': '团费'
+    }}
     table_head['people'] = []
     balance = {}
     cost = {}

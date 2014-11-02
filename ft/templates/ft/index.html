@@ -108,9 +108,15 @@
 <table class="table table-striped table-bordered table-hover table-condensed">
   <thead>
     <tr class="warning">
-      {% for t in table_head.list %}
-      <th>{{ t }}</th>
-      {% endfor %}
+      <th>{{ table_head.list.date }}</th>
+      <th>{{ table_head.list.restaurant }}</th>
+      <th>{{ table_head.list.charge }}</th>
+      <th>{{ table_head.list.people_count }}</th>
+      <th>{{ table_head.list.per_charge }}</th>
+    <!--
+      <th>{{ table_head.list.pay_people }}</th>
+      <th>{{ table_head.list.fantuan_balance }}</th>
+    -->
       {% for p in table_head.people %}
       <th><a href="{% url 'ft:index' %}?p={{p.id}}">{{ p.name }}</a></th>
       {% endfor %}
@@ -124,8 +130,10 @@
       <td>{{ this_line.charge }}</td>
       <td>{{ this_line.people_count }}</td>
       <td>{{ this_line.per_charge }}</td>
+    <!--
       <td><a href="{% url 'ft:index' %}?pay={{this_line.pay_people_id}}">{{ this_line.pay_people }}</a></td>
       <td>{{ this_line.fantuan_balance }}</td>
+    -->
       {% for p in this_line.peoples %}
       <td class="balance {% if p.type %}{{ p.type }}{% endif %}">{{ p.cost }}<br />{{ p.balance }}</td>
       {% endfor %}
@@ -134,9 +142,15 @@
   </tbody>
   <tfoot>
     <tr class="warning">
-      {% for t in table_head.list %}
-      <th>{{ t }}</th>
-      {% endfor %}
+      <th>{{ table_head.list.date }}</th>
+      <th>{{ table_head.list.restaurant }}</th>
+      <th>{{ table_head.list.charge }}</th>
+      <th>{{ table_head.list.people_count }}</th>
+      <th>{{ table_head.list.per_charge }}</th>
+    <!--
+      <th>{{ table_head.list.pay_people }}</th>
+      <th>{{ table_head.list.fantuan_balance }}</th>
+    -->
       {% for p in table_head.people %}
       <th><a href="{% url 'ft:index' %}?p={{p.id}}">{{ p.name }}</a></th>
       {% endfor %}
