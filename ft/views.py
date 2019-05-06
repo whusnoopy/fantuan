@@ -6,7 +6,6 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
-from django.template import Context
 from django.db import connection
 
 from ft.models import Restaurant, People, Deal
@@ -214,7 +213,7 @@ def buildContext(filter_people=0,
             stat_times.append('%d' % times[pid])
             stat_avg.append('%.2f' % avg)
 
-    context = Context({
+    context = {
             'this_month': fantuan_date,
             'date_list': sorted(list(all_month.keys()), reverse=True),
             'all_restaurant': sorted([{'id':k,'name':v} for k,v in rnames.items()]),
@@ -224,7 +223,7 @@ def buildContext(filter_people=0,
             'stat_sum': stat_sum,
             'stat_times': stat_times,
             'stat_avg': stat_avg,
-    })
+    }
 
     return context
 

@@ -28,7 +28,7 @@ class People(models.Model):
 class Deal(models.Model):
   restaurant = models.ForeignKey(Restaurant, verbose_name="餐厅")
   pay_people = models.ForeignKey(People, verbose_name="付款人", help_text="转账时此处选转出人下面参与人只选转入人")
-  deal_date = models.DateTimeField('date dealed', default=timezone.now(), help_text="为避免 django 框架时区处理错误, 时间请统一选中午")
+  deal_date = models.DateTimeField('date dealed', default=timezone.now, help_text="为避免 django 框架时区处理错误, 时间请统一选中午")
   charge = models.FloatField(default=0, verbose_name="消费", help_text="消费或转账金额, 统一用正数")
   peoples = models.ManyToManyField(People, related_name='join+', blank=True)
 

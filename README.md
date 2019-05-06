@@ -18,7 +18,7 @@ Fantuan is a free software, you can use, modify or distribute it without restric
 
 ## Python 库
 
-* django (基于 django 1.5 开发, 其他版本没做测试)
+* django (基于 django 1.5 开发, 2019-05-06 升级到 1.11.20)
 * python-flup (用 fastcgi 模式运行 django)
 
 
